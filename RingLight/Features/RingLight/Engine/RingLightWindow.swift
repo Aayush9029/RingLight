@@ -146,8 +146,14 @@ final class GlowGradientView: NSView {
             gradient.isHidden = configuration.intensity <= 0.01
         }
 
-        let safeInset = clamp(topSafeInset, min: 0, max: bounds.height)
-        let availableHeight = max(bounds.height - safeInset, 0)
+        // Account for ring width to prevent clipping into menu bar
+        let effectiveTopInset = clamp(topSafeInset + targetWidth, min: 0, max: bounds.height)
+        let availableHeight = max(bounds.height - effectiveTopInset, 0)
+        
+        // Position top gradient: extends from topGradientY upward by topGradientHeight
+        // Clamped to ensure it stays within the available drawing area
+        let topGradientY = max(0, availableHeight - targetWidth)
+        let topGradientHeight = min(targetWidth, availableHeight)
 
         topGradient.startPoint = CGPoint(x: 0.5, y: 1)
         topGradient.endPoint = CGPoint(x: 0.5, y: 0)
@@ -160,9 +166,9 @@ final class GlowGradientView: NSView {
 
         topGradient.frame = CGRect(
             x: 0,
-            y: bounds.height - safeInset - targetWidth,
+            y: topGradientY,
             width: bounds.width,
-            height: max(0, targetWidth)
+            height: topGradientHeight
         )
         bottomGradient.frame = CGRect(x: 0, y: 0, width: bounds.width, height: targetWidth)
         leftGradient.frame = CGRect(x: 0, y: 0, width: targetWidth, height: availableHeight)
