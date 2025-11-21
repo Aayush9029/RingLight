@@ -150,8 +150,8 @@ final class GlowGradientView: NSView {
         let effectiveTopInset = clamp(topSafeInset + targetWidth, min: 0, max: bounds.height)
         let availableHeight = max(bounds.height - effectiveTopInset, 0)
         
-        // Position top gradient: it should start at availableHeight and extend downward by targetWidth
-        // But clamp to ensure it stays within bounds
+        // Position top gradient: extends from topGradientY upward by topGradientHeight
+        // Clamped to ensure it stays within the available drawing area
         let topGradientY = max(0, availableHeight - targetWidth)
         let topGradientHeight = min(targetWidth, availableHeight)
 
