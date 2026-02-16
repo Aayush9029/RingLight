@@ -18,7 +18,7 @@ struct RingLightSettings: Sendable, Equatable {
     var temperature: Double = 5200
     var cornerRadius: Double = 0
     var edgeInset: Double = 0
-    var selectedDisplayID: UInt32 = 0 // 0 means all displays
+    var selectedDisplayIDs: String = "" // comma-separated UInt32 values; empty means all displays
 }
 
 // MARK: - Codable Conformance (non-isolated)
@@ -33,7 +33,7 @@ extension RingLightSettings: Codable {
         self.temperature = try container.decodeIfPresent(Double.self, forKey: .temperature) ?? 5200
         self.cornerRadius = try container.decodeIfPresent(Double.self, forKey: .cornerRadius) ?? 0
         self.edgeInset = try container.decodeIfPresent(Double.self, forKey: .edgeInset) ?? 0
-        self.selectedDisplayID = try container.decodeIfPresent(UInt32.self, forKey: .selectedDisplayID) ?? 0
+        self.selectedDisplayIDs = try container.decodeIfPresent(String.self, forKey: .selectedDisplayIDs) ?? ""
     }
 
     nonisolated func encode(to encoder: Encoder) throws {
@@ -45,7 +45,7 @@ extension RingLightSettings: Codable {
         try container.encode(self.temperature, forKey: .temperature)
         try container.encode(self.cornerRadius, forKey: .cornerRadius)
         try container.encode(self.edgeInset, forKey: .edgeInset)
-        try container.encode(self.selectedDisplayID, forKey: .selectedDisplayID)
+        try container.encode(self.selectedDisplayIDs, forKey: .selectedDisplayIDs)
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -56,7 +56,7 @@ extension RingLightSettings: Codable {
         case temperature
         case cornerRadius
         case edgeInset
-        case selectedDisplayID
+        case selectedDisplayIDs
     }
 }
 
@@ -95,8 +95,8 @@ extension SharedKey where Self == AppStorageKey<Double>.Default {
     }
 }
 
-extension SharedKey where Self == AppStorageKey<UInt32>.Default {
-    static var ringLightSelectedDisplayID: Self {
-        Self[.appStorage("ringLight:selectedDisplayID"), default: 0]
+extension SharedKey where Self == AppStorageKey<String>.Default {
+    static var ringLightSelectedDisplayIDs: Self {
+        Self[.appStorage("ringLight:selectedDisplayIDs"), default: ""]
     }
 }

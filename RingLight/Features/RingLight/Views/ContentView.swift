@@ -90,18 +90,26 @@ struct ContentView: View {
 
     private var displayPickerSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("DISPLAY")
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundStyle(.secondary)
-            
-            Picker("Display", selection: $controller.selectedDisplayID) {
-                ForEach(controller.availableDisplays()) { display in
-                    Text(display.name).tag(display.id)
+            HStack {
+                Text("DISPLAYS")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                if controller.selectedDisplayIDSet.isEmpty {
+                    Text("All displays")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
                 }
             }
-            .pickerStyle(.menu)
-            .labelsHidden()
+
+            ForEach(controller.availableDisplays()) { display in
+                Toggle(display.name, isOn: Binding(
+                    get: { controller.selectedDisplayIDSet.contains(display.id) },
+                    set: { _ in controller.toggleDisplay(display.id) }
+                ))
+                .toggleStyle(.checkbox)
+            }
         }
     }
 

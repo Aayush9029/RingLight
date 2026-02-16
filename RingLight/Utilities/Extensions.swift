@@ -45,10 +45,13 @@ extension NSColor {
 
 extension NSScreen {
     var menuBarInset: CGFloat {
-        if #available(macOS 12.0, *) {
-            return max(safeAreaInsets.top, NSStatusBar.system.thickness)
-        } else {
-            return NSStatusBar.system.thickness
+        // The gap between the top of the screen and the top of the visible
+        // area (below the menu bar + padding) matches where full-screen apps start.
+        let topInset = frame.maxY - visibleFrame.maxY
+        if topInset > 0 {
+            return topInset
         }
+        // Fallback for screens without a menu bar
+        return NSStatusBar.system.thickness
     }
 }
