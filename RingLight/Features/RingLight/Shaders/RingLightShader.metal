@@ -47,9 +47,8 @@ float sdRoundedBox(float2 p, float2 halfSize, float radius) {
 fragment half4 ringLightFragment(VertexOut in [[stage_in]],
                                  constant RingLightUniforms& uniforms [[buffer(0)]]) {
     float2 coord = in.uv * uniforms.resolution;
-    // Account for ring width to prevent clipping into menu bar
-    float effectiveTopInset = uniforms.safeTopInset + uniforms.ringWidth;
-    float cappedHeight = uniforms.resolution.y - effectiveTopInset;
+    // Clip the top area reserved for the menu bar / notch
+    float cappedHeight = uniforms.resolution.y - uniforms.safeTopInset;
     if (cappedHeight <= 0.0) {
         return half4(0.0);
     }

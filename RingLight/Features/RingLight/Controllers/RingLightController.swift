@@ -8,8 +8,6 @@ import SwiftUI
 struct DisplayInfo: Identifiable, Hashable {
     let id: UInt32
     let name: String
-    
-    static let allDisplays = DisplayInfo(id: 0, name: "All Displays")
 }
 
 // MARK: - Ring Light Controller
@@ -53,8 +51,31 @@ final class RingLightController {
     }
 
     @ObservationIgnored
-    @Shared(.ringLightSelectedDisplayID) var selectedDisplayID: UInt32 = 0 {
+    @Shared(.ringLightSelectedDisplayIDs) var selectedDisplayIDs: String = "" {
         didSet { pushUpdate() }
+    }
+
+    var selectedDisplayIDSet: Set<UInt32> {
+        let ids = selectedDisplayIDs.split(separator: ",").compactMap { UInt32($0) }
+        return Set(ids)
+    }
+
+    func toggleDisplay(_ id: UInt32) {
+        var idSet = selectedDisplayIDSet
+        if idSet.contains(id) {
+            idSet.remove(id)
+        } else {
+            idSet.insert(id)
+        }
+        $selectedDisplayIDs.withLock {
+            $0 = idSet.sorted().map(String.init).joined(separator: ",")
+        }
+        pushUpdate()
+    }
+
+    func isDisplaySelected(_ id: UInt32) -> Bool {
+        let idSet = selectedDisplayIDSet
+        return idSet.isEmpty || idSet.contains(id)
     }
 
     var previewColor: Color {
@@ -75,8 +96,8 @@ final class RingLightController {
 
     func availableDisplays() -> [DisplayInfo] {
         @Dependency(\.screenClient) var screenClient
-        var displays = [DisplayInfo.allDisplays]
-        
+        var displays: [DisplayInfo] = []
+
         let screens = screenClient.screens()
         for (index, screen) in screens.enumerated() {
             if let identifier = ScreenIdentifier(screen: screen) {
@@ -84,7 +105,7 @@ final class RingLightController {
                 displays.append(DisplayInfo(id: identifier.rawValue, name: name))
             }
         }
-        
+
         return displays
     }
 
@@ -100,6 +121,6 @@ final class RingLightController {
     }
 
     private func pushUpdate() {
-        engine.update(isEnabled: isEnabled, configuration: configuration, selectedDisplayID: selectedDisplayID)
+        engine.update(isEnabled: isEnabled, configuration: configuration, selectedDisplayIDs: selectedDisplayIDSet)
     }
 }

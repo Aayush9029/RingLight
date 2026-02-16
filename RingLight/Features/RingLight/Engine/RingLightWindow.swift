@@ -34,6 +34,10 @@ final class RingLightWindow: NSPanel {
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
 
+    override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect {
+        return frameRect
+    }
+
     func update(for screen: NSScreen) {
         setFrame(screen.frame, display: true)
         glowView.frame = NSRect(origin: .zero, size: screen.frame.size)
@@ -97,7 +101,10 @@ final class GlowGradientView: NSView {
     }
 
     private func syncScaleAndDrawableSize() {
-        let scale = window?.backingScaleFactor ?? NSScreen.main?.backingScaleFactor ?? 1
+        // Don't update if the view is being removed from its window (during teardown).
+        // Using a stale nil-screen fallback would reset the drawable to the wrong scale.
+        guard let screen = window?.screen else { return }
+        let scale = screen.backingScaleFactor
         metalRenderer?.drawableSizeDidChange(to: bounds.size, scale: scale)
     }
 
@@ -146,12 +153,10 @@ final class GlowGradientView: NSView {
             gradient.isHidden = configuration.intensity <= 0.01
         }
 
-        // Account for ring width to prevent clipping into menu bar
-        let effectiveTopInset = clamp(topSafeInset + targetWidth, min: 0, max: bounds.height)
-        let availableHeight = max(bounds.height - effectiveTopInset, 0)
-        
-        // Position top gradient: extends from topGradientY upward by topGradientHeight
-        // Clamped to ensure it stays within the available drawing area
+        // Reserve space for the menu bar / notch at the top
+        let availableHeight = max(bounds.height - topSafeInset, 0)
+
+        // Position top gradient just below the menu bar, extending inward by targetWidth
         let topGradientY = max(0, availableHeight - targetWidth)
         let topGradientHeight = min(targetWidth, availableHeight)
 

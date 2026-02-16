@@ -7,7 +7,7 @@ import Dependencies
 final class RingLightEngine {
     private var configuration = RingLightConfiguration.default
     private var isEnabled = false
-    private var selectedDisplayID: UInt32 = 0
+    private var selectedDisplayIDs: Set<UInt32> = []
     private var windows: [ScreenIdentifier: RingLightWindow] = [:]
     private var screenObserver: NSObjectProtocol?
     private let screenClient: ScreenClient
@@ -32,10 +32,10 @@ final class RingLightEngine {
         }
     }
 
-    func update(isEnabled: Bool, configuration: RingLightConfiguration, selectedDisplayID: UInt32) {
+    func update(isEnabled: Bool, configuration: RingLightConfiguration, selectedDisplayIDs: Set<UInt32>) {
         self.configuration = configuration
         self.isEnabled = isEnabled
-        self.selectedDisplayID = selectedDisplayID
+        self.selectedDisplayIDs = selectedDisplayIDs
 
         if isEnabled {
             realizeWindowsIfNeeded()
@@ -58,8 +58,8 @@ final class RingLightEngine {
     private func realizeWindowsIfNeeded() {
         let currentScreens = screenClient.screens().compactMap { screen -> (ScreenIdentifier, NSScreen)? in
             guard let identifier = ScreenIdentifier(screen: screen) else { return nil }
-            // Filter by selected display: 0 means all displays
-            if selectedDisplayID != 0 && identifier.rawValue != selectedDisplayID {
+            // Filter by selected displays: empty set means all displays
+            if !selectedDisplayIDs.isEmpty && !selectedDisplayIDs.contains(identifier.rawValue) {
                 return nil
             }
             return (identifier, screen)

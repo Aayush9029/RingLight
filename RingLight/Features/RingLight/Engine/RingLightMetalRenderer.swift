@@ -61,6 +61,7 @@ final class HDRRingLightRenderer: NSObject, MTKViewDelegate {
             mtkView.colorspace = CGColorSpace(name: CGColorSpace.displayP3)
         }
 
+        mtkView.autoResizeDrawable = false
         mtkView.autoresizingMask = [.width, .height]
         mtkView.translatesAutoresizingMaskIntoConstraints = true
 
@@ -98,6 +99,7 @@ final class HDRRingLightRenderer: NSObject, MTKViewDelegate {
 
     func drawableSizeDidChange(to size: CGSize, scale: CGFloat) {
         drawableScale = max(scale, 1)
+        mtkView.frame = CGRect(origin: .zero, size: size)
         mtkView.drawableSize = CGSize(
             width: max(size.width * drawableScale, 1),
             height: max(size.height * drawableScale, 1)
