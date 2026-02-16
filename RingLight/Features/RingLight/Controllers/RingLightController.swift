@@ -92,6 +92,7 @@ final class RingLightController {
 
     func applyPresetTemperature(_ kelvin: Double) {
         $temperature.withLock { $0 = kelvin }
+        pushUpdate()
     }
 
     func availableDisplays() -> [DisplayInfo] {
