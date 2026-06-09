@@ -6,10 +6,11 @@
 //
 
 import Dependencies
+import Sharing
 import SwiftUI
 
 struct ContentView: View {
-    @Bindable var controller: RingLightController
+    var controller: RingLightController
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -20,15 +21,15 @@ struct ContentView: View {
             displayPickerSection
 
             parameterSection(title: "Ring width", valueLabel: "\(Int(controller.width))") {
-                Slider(value: $controller.width, in: 40...400, step: 5)
+                Slider(value: Binding(controller.$width), in: 40...400, step: 5)
             }
 
             parameterSection(title: "Corner radius", valueLabel: "\(Int(controller.cornerRadius))") {
-                Slider(value: $controller.cornerRadius, in: 0...500, step: 5)
+                Slider(value: Binding(controller.$cornerRadius), in: 0...500, step: 5)
             }
 
             parameterSection(title: "Brightness", valueLabel: "\(Int(controller.intensity * 100))%") {
-                Slider(value: $controller.intensity, in: 0.1...1)
+                Slider(value: Binding(controller.$intensity), in: 0.1...1)
             }
 
 //            parameterSection(title: "Softness", valueLabel: String(format: "%.0f%%", controller.feather * 100)) {
@@ -36,7 +37,7 @@ struct ContentView: View {
 //            }
 
             parameterSection(title: "Color temperature", valueLabel: "\(Int(controller.temperature))K") {
-                Slider(value: $controller.temperature, in: 2800...7000, step: 50)
+                Slider(value: Binding(controller.$temperature), in: 2800...7000, step: 50)
             }
 
             TemperaturePresetRow(controller: controller)
@@ -59,7 +60,7 @@ struct ContentView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Toggle(isOn: $controller.isEnabled) {
+                Toggle(isOn: Binding(controller.$isEnabled)) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Ring Light")
                             .font(.headline)
@@ -95,7 +96,7 @@ struct ContentView: View {
                 .fontWeight(.semibold)
                 .foregroundStyle(.secondary)
             
-            Picker("Display", selection: $controller.selectedDisplayID) {
+            Picker("Display", selection: Binding(controller.$selectedDisplayID)) {
                 ForEach(controller.availableDisplays()) { display in
                     Text(display.name).tag(display.id)
                 }

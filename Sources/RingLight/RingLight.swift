@@ -1,9 +1,13 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+import os
 
 @main
 struct RingLight {
+    private static let logger = Logger(
+        subsystem: "com.aayush.opensource.RingLight",
+        category: "CommandLine"
+    )
+
     static func main() {
-        print("Hello, world!")
+        logger.info("RingLight command line target launched")
     }
 }
